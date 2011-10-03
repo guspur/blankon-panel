@@ -8,7 +8,6 @@ public class PanelMenuContent : VBox {
     public signal void menu_clicked ();
 
     public PanelMenuContent (string? label) {
-
         if (label != null) {
             var l = new Label ("");
             l.set_markup ("<big>\n" + label + "</big>");

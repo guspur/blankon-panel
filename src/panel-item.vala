@@ -12,7 +12,7 @@ public class PanelExpanderItem : Expander {
             | Gdk.EventMask.KEY_RELEASE_MASK
             | Gdk.EventMask.POINTER_MOTION_MASK);
 
-        item = new PanelItem.with_label (title);
+        item = new PanelItem.with_label (title, false);
         item.show ();
         item.set_image (icon);
         set_label_widget (item);
@@ -32,11 +32,11 @@ public class PanelItem : Box {
     public new signal void right_clicked (Gdk.EventButton event);
 
     public PanelItem () {
-        init ();
+        init (true);
     }
 
-    public PanelItem.with_label (string title) {
-        init ();
+    public PanelItem.with_label (string title, bool can_focus = true) {
+        init (can_focus);
         label.set_text (title);
     }
 
@@ -47,10 +47,11 @@ public class PanelItem : Box {
         info = new DesktopAppInfo.from_filename (filename);
     }
 
-    private void init () {
+    private void init (bool can_focus) {
         settings = Gtk.Settings.get_default ();
         box = new HBox (false, 0);
         event_box = new EventBox ();
+        event_box.set_can_focus (can_focus);
         event_box.show ();
         add (event_box);
         event_box.add (box);
@@ -58,6 +59,7 @@ public class PanelItem : Box {
         event_box.set_visible_window (false);
         info = null;
         label = new Label ("");
+        label.set_can_focus (false);
         image = new Image.from_stock (Stock.MISSING_IMAGE, IconSize.LARGE_TOOLBAR); 
         label.show ();
         label.set_justify(Justification.LEFT);
@@ -69,7 +71,7 @@ public class PanelItem : Box {
 
         // Set this for map-event
 
-        event_box.add_events (Gdk.EventMask.BUTTON_PRESS_MASK
+        event_box.set_events (Gdk.EventMask.BUTTON_PRESS_MASK
             | Gdk.EventMask.BUTTON_RELEASE_MASK
             | Gdk.EventMask.STRUCTURE_MASK
             | Gdk.EventMask.ENTER_NOTIFY_MASK
@@ -77,6 +79,19 @@ public class PanelItem : Box {
             | Gdk.EventMask.KEY_PRESS_MASK
             | Gdk.EventMask.KEY_RELEASE_MASK
             | Gdk.EventMask.POINTER_MOTION_MASK);
+
+        key_press_event.connect ((e) => {
+            if (Gdk.keyval_name(e.keyval) == "Return") {
+                activate ();
+                return true;
+            }
+            return false;
+        });
+
+        event_box.button_press_event.connect ((event) => {
+            event_box.grab_focus ();
+            return true;
+        });
 
         event_box.button_release_event.connect ((event) => {
             if (event.button == 1 && event.type == Gdk.EventType.BUTTON_RELEASE) { // left click
@@ -89,8 +104,20 @@ public class PanelItem : Box {
 
         event_box.enter_notify_event.connect ((event) => {
             set_state(StateType.PRELIGHT);
+            event_box.grab_focus ();
             return true;
         });
+
+        event_box.focus_out_event.connect (() => {
+            set_state(StateType.NORMAL);
+            return true;
+        });
+
+        event_box.focus_in_event.connect (() => {
+            set_state(StateType.FOCUSED);
+            return true;
+        });
+
 
         event_box.leave_notify_event.connect (() => {
             set_state(StateType.NORMAL);
@@ -99,6 +126,18 @@ public class PanelItem : Box {
 
         event_box.realize.connect (() => {
             event_box.set_size_request (get_toplevel().get_allocated_width () - MARGIN * 2, image.get_allocated_width ()+ MARGIN);
+        });
+
+        event_box.focus.connect ((direction) => {
+            //stdout.printf ("%d %d %d %s %s\n", (int) event_box.get_can_focus (), (int) event_box.has_focus, (int) 
+            if (event_box.has_focus) {
+                set_state(StateType.NORMAL);
+                return false;
+            }
+
+            event_box.grab_focus ();
+            set_state(StateType.FOCUSED);
+            return true;
         });
     }
 

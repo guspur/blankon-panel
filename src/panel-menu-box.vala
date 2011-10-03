@@ -44,9 +44,11 @@ public class PanelMenuBox : PanelAbstractWindow {
     }
 
     private void show_content_widget () {
-        if (content_widget != null)
+        if (content_widget != null) {
             content_widget.show_all ();
+        }
         back_button.show ();
+        back_button.grab_focus ();
     }
 
     private void hide_content_widget () {
@@ -202,6 +204,7 @@ public class PanelMenuBox : PanelAbstractWindow {
         back_button.show ();
 
         back_button.clicked.connect (() => {
+            Utils.grab (this);
             slide_left ();
         });
 
@@ -294,6 +297,7 @@ public class PanelMenuBox : PanelAbstractWindow {
         // Signal connections
         adjustment.finished.connect (() => {
             if (active_column == 0) {
+                all_apps_opener.grab_focus ();
                 if (content_widget != null)
                     hide_content_widget ();
                 columns.move (right_scrollable, COLUMN_WIDTH, 0); // Moe the right column to it's place
