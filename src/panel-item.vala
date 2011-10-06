@@ -114,7 +114,8 @@ public class PanelItem : Box {
         });
 
         event_box.focus_in_event.connect (() => {
-            set_state(StateType.FOCUSED);
+            set_state(StateType.PRELIGTH);
+            stdout.printf("%s focused\n", label.get_text());
             return true;
         });
 
@@ -129,14 +130,14 @@ public class PanelItem : Box {
         });
 
         event_box.focus.connect ((direction) => {
-            //stdout.printf ("%d %d %d %s %s\n", (int) event_box.get_can_focus (), (int) event_box.has_focus, (int) 
+            stdout.printf ("%d %d %d\n", (int) event_box.get_can_focus (), (int) event_box.has_focus, (int) direction);
             if (event_box.has_focus) {
                 set_state(StateType.NORMAL);
                 return false;
             }
 
             event_box.grab_focus ();
-            set_state(StateType.FOCUSED);
+            set_state(StateType.PRELIGHT);
             return true;
         });
     }

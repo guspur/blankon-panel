@@ -22,6 +22,7 @@ int main (string[] args) {
     var m = new PanelButtonWindow();
     m.show_all();
 
+/*
     try {
         XDGDBus session =  Bus.get_proxy_sync (BusType.SESSION,
             "org.freedesktop.DBus", "/org/freedesktop/DBus");
@@ -35,6 +36,7 @@ int main (string[] args) {
     } catch (Error e) {
         stdout.printf ("Unable to claim Panel to gnome-session");
     }
+*/
 
     Gtk.main ();
     return 0;
